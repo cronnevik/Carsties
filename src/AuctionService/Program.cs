@@ -23,7 +23,8 @@ builder.Services.AddMassTransit(x =>
         o.UseBusOutbox();
     });
 
-    x.AddConsumersFromNamespaceContaining<AuctionCreatedFaultConsumer>();
+    // enough to specify one consumer and the others are picked up as well
+    x.AddConsumersFromNamespaceContaining<AuctionCreatedFaultConsumer>(); 
     x.SetEndpointNameFormatter(new KebabCaseEndpointNameFormatter("auction", false));
 
     x.UsingRabbitMq((context, cfg) => 

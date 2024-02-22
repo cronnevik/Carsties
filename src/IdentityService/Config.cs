@@ -20,6 +20,7 @@ public static class Config
     public static IEnumerable<Client> Clients =>
         new Client[]
         {
+            // For Postman
             new Client
             {
                 // Two tokens - Id token and Access token
@@ -31,6 +32,20 @@ public static class Config
                 ClientSecrets = new[] { new Secret("NotASecret".Sha256()) },
                 AllowedGrantTypes = GrantTypes.ResourceOwnerPassword
             },
+
+            // For the nextjs app
+            new Client
+            {
+                ClientId = "nextApp",
+                ClientName = "nextApp",
+                ClientSecrets = new[] { new Secret("NotASecret".Sha256()) },
+                AllowedGrantTypes = GrantTypes.CodeAndClientCredentials,
+                RequirePkce = false ,// for mobile apps
+                RedirectUris = {"http://localhost:3000/api/auth/callback/id-server"},
+                AllowOfflineAccess = true, // for refresh token functionality
+                AllowedScopes = { "openid", "profile", "auctionApp" },
+                AccessTokenLifetime = 3600*24*30  // default is 3600 seconds (1h). We extend to a month for dev purpose
+            }
         };
 
 }
