@@ -50,6 +50,10 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         options.TokenValidationParameters.NameClaimType = "username";
     });
 
+// scoped to the http request that comes in to the API controller
+// repository will be created and instansiated when the request first comes in and disposed of when the request leaves
+builder.Services.AddScoped<IAuctionRepository, AuctionRepository>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -68,3 +72,6 @@ catch (Exception e)
 }
 
 app.Run();
+
+// used for integration test (WebApplicationFactory)
+public partial class Program {}
