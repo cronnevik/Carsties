@@ -27,7 +27,7 @@ public static class Config
                 // This config is just for development - less secure
                 ClientId = "postman",
                 ClientName = "Postman",
-                AllowedScopes = { "openid", "profile", "auctionApp" }, 
+                AllowedScopes = { "openid", "profile", "auctionApp" },
                 RedirectUris = {"https://www.getpostman.com/oauth2/callback"}, // is required, but not needed for this application
                 ClientSecrets = new[] { new Secret("NotASecret".Sha256()) },
                 AllowedGrantTypes = GrantTypes.ResourceOwnerPassword
@@ -44,7 +44,8 @@ public static class Config
                 RedirectUris = {"http://localhost:3000/api/auth/callback/id-server"},
                 AllowOfflineAccess = true, // for refresh token functionality
                 AllowedScopes = { "openid", "profile", "auctionApp" },
-                AccessTokenLifetime = 3600*24*30  // default is 3600 seconds (1h). We extend to a month for dev purpose
+                AccessTokenLifetime = 3600*24*30,  // default is 3600 seconds (1h). We extend to a month for dev purpose
+                AlwaysIncludeUserClaimsInIdToken = true
             }
         };
 
