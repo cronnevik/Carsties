@@ -11,7 +11,6 @@ const getSession = async () => {
 const getCurrentUser = async () => {
   try {
     const session = await getSession();
-    console.log({ session });
     if (!session) return null;
     return session.user;
   } catch (error) {
