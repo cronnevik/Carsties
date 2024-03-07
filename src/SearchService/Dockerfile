@@ -3,17 +3,17 @@ WORKDIR /app
 EXPOSE 80
 
 # copy all .csproj files and restore as distinct layers. 
-# Use of the same COPY command for every dockerfile in the project to take advantage og docker cashing
+# Use of the same COPY command for every dockerfile in the project to take advantage of docker caching
 COPY dotn-microservice-app.sln Carsties.sln
 COPY src/AuctionService/AuctionService.csproj src/AuctionService/AuctionService.csproj
 COPY src/SearchService/SearchService.csproj src/SearchService/SearchService.csproj
 COPY src/GatewayService/GatewayService.csproj src/GatewayService/GatewayService.csproj
+COPY src/NotificationService/NotificationService.csproj src/NotificationService/NotificationService.csproj
 COPY src/Contracts/Contracts.csproj src/Contracts/Contracts.csproj
 COPY src/IdentityService/IdentityService.csproj src/IdentityService/IdentityService.csproj
 COPY src/BiddingService/BiddingService.csproj src/BiddingService/BiddingService.csproj
 COPY tests/AuctionService.UnitTests/AuctionService.UnitTests.csproj tests/AuctionService.UnitTests/AuctionService.UnitTests.csproj
 COPY tests/AuctionService.IntegrationTests/AuctionService.IntegrationTests.csproj tests/AuctionService.IntegrationTests/AuctionService.IntegrationTests.csproj
-
 
 # Restore package dependencies
 RUN dotnet restore Carsties.sln
