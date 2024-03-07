@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+option csharp_namespace = "AuctionService";
+
+service GrpcAuction {
+    rpc GetAuction (GetAuctionRequest) returns (GrpcAuctionResponse);
+}
+
+message GetAuctionRequest {
+    string id = 1; // position 1, not assigning 1 to id
+}
+
+message GrpcAuctionModel {
+    string id = 1; // position 1
+    string seller = 2; // position 2, etc
+    string auctionEnd = 3;
+    int32 reservePrice = 4;
+}
+
+message GrpcAuctionResponse {
+    GrpcAuctionModel auction = 1;
+}

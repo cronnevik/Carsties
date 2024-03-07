@@ -53,6 +53,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 // scoped to the http request that comes in to the API controller
 // repository will be created and instansiated when the request first comes in and disposed of when the request leaves
 builder.Services.AddScoped<IAuctionRepository, AuctionRepository>();
+builder.Services.AddGrpc();
 
 var app = builder.Build();
 
@@ -61,6 +62,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapGrpcService<GrpcAuctionService>();
 
 try
 {
