@@ -52,7 +52,13 @@ const getHeaders = async () => {
 
 const handleResponse = async (response: Response) => {
   const text = await response.text(); // uses text instead of json since the e.g. delete api doesnt return json
-  const data = text && JSON.parse(text);
+  // const data = text && JSON.parse(text);
+  let data;
+  try {
+    data = JSON.parse(text);
+  } catch (error) {
+    data = text;
+  }
 
   if (response.ok) {
     return data || response.statusText;
@@ -64,7 +70,7 @@ const handleResponse = async (response: Response) => {
     */
     const error = {
       status: response.status,
-      message: response.statusText,
+      message: typeof data === "string" ? data : response.statusText,
     };
 
     return { error };
