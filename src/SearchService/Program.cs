@@ -15,10 +15,16 @@ builder.Services.AddMassTransit(x =>
     x.AddConsumersFromNamespaceContaining<AuctionCreatedConsumer>();
 
     // prefixed with search: search-auction-created. False means to not include namespace in name
-    x.SetEndpointNameFormatter(new KebabCaseEndpointNameFormatter("search", false)); 
+    x.SetEndpointNameFormatter(new KebabCaseEndpointNameFormatter("search", false));
 
-    x.UsingRabbitMq((context, cfg) => 
+    x.UsingRabbitMq((context, cfg) =>
     {
+        cfg.UseMessageRetry(r =>
+        {
+            r.Handle<RabbitMqConnectionException>();
+            r.Interval(5, TimeSpan.FromSeconds(10));
+        });
+
         cfg.Host(builder.Configuration["RabbitMq:Host"], "/", host =>
         {
             host.Username(builder.Configuration.GetValue("RabbitMq:Username", "guest"));
@@ -26,7 +32,7 @@ builder.Services.AddMassTransit(x =>
         });
 
         // retry policy for specific endpoints
-        cfg.ReceiveEndpoint("search-auction-created", e => 
+        cfg.ReceiveEndpoint("search-auction-created", e =>
         {
             e.UseMessageRetry(r => r.Interval(5, 5));
             // which consumer retry policy is configured for
@@ -47,15 +53,11 @@ app.UseHttpsRedirection();
 app.MapControllers();
 
 // Make the application run and start without the DbInitialier to block
-app.Lifetime.ApplicationStarted.Register(async () => {
-    try
-    {
-        await DbInitializer.InitDb(app);
-    }
-    catch (Exception e)
-    {
-        Console.WriteLine(e);
-    }
+app.Lifetime.ApplicationStarted.Register(async () =>
+{
+    await Policy.Handle<TimeoutException>()
+        .WaitAndRetryAsync(5, retryAttempt => TimeSpan.FromSeconds(10))
+        .ExecuteAndCaptureAsync(async () => await DbInitializer.InitDb(app));
 });
 
 app.Run();

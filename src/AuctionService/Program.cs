@@ -3,12 +3,15 @@ using AuctionService.Data;
 using MassTransit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Npgsql;
+using Polly;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllers();
-builder.Services.AddDbContext<AuctionDbContext>(opt => {
+builder.Services.AddDbContext<AuctionDbContext>(opt =>
+{
     opt.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
 
@@ -24,11 +27,18 @@ builder.Services.AddMassTransit(x =>
     });
 
     // enough to specify one consumer and the others are picked up as well
-    x.AddConsumersFromNamespaceContaining<AuctionCreatedFaultConsumer>(); 
+    x.AddConsumersFromNamespaceContaining<AuctionCreatedFaultConsumer>();
     x.SetEndpointNameFormatter(new KebabCaseEndpointNameFormatter("auction", false));
 
-    x.UsingRabbitMq((context, cfg) => 
+    x.UsingRabbitMq((context, cfg) =>
     {
+
+        cfg.UseMessageRetry(r =>
+        {
+            r.Handle<RabbitMqConnectionException>();
+            r.Interval(5, TimeSpan.FromSeconds(10));
+        });
+
         cfg.Host(builder.Configuration["RabbitMq:Host"], "/", host =>
         {
             host.Username(builder.Configuration.GetValue("RabbitMq:Username", "guest"));
@@ -40,10 +50,10 @@ builder.Services.AddMassTransit(x =>
 });
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(options => 
+    .AddJwtBearer(options =>
     {
         // tells the resource server who the token was issued by
-        options.Authority = builder.Configuration["IdentityServiceUrl"]; 
+        options.Authority = builder.Configuration["IdentityServiceUrl"];
         // Because the identity server is running on http:
         options.RequireHttpsMetadata = false;
         options.TokenValidationParameters.ValidateAudience = false;
@@ -64,16 +74,13 @@ app.UseAuthorization();
 app.MapControllers();
 app.MapGrpcService<GrpcAuctionService>();
 
-try
-{
-    DbInitializer.InitiDb(app);
-}
-catch (Exception e)
-{
-    Console.WriteLine(e);
-}
+var retryPolicy = Policy
+    .Handle<NpgsqlException>()
+    .WaitAndRetry(5, retryAttempt => TimeSpan.FromSeconds(10));
+
+retryPolicy.ExecuteAndCapture(() => DbInitializer.InitiDb(app));
 
 app.Run();
 
 // used for integration test (WebApplicationFactory)
-public partial class Program {}
+public partial class Program { }
