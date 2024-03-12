@@ -1,4 +1,4 @@
-import { currencyFormatter } from "@/lib/utils";
+import { currencyFormatter } from "@/app/lib/utils";
 import { Auction, AuctionFinished } from "@/types";
 import Image from "next/image";
 import Link from "next/link";

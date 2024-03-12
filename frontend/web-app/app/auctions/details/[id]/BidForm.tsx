@@ -2,7 +2,7 @@
 
 import { placeBidForAuction } from "@/app/actions/auctionActions";
 import { useBidStore } from "@/hooks/useBidStore";
-import { currencyFormatter } from "@/lib/utils";
+import { currencyFormatter } from "@/app/lib/utils";
 import React from "react";
 import { FieldValues, useForm } from "react-hook-form";
 import toast from "react-hot-toast";
