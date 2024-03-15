@@ -8,9 +8,7 @@ builder.Services.AddReverseProxy()
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
-        // tells the resource server who the token was issued by
         options.Authority = builder.Configuration["IdentityServiceUrl"];
-        // Because the identity server is running on http:
         options.RequireHttpsMetadata = false;
         options.TokenValidationParameters.ValidateAudience = false;
         options.TokenValidationParameters.NameClaimType = "username";
@@ -27,7 +25,7 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-app.UseCors("customPolicy");
+app.UseCors();
 
 app.MapReverseProxy();
 
