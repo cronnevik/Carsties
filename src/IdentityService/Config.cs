@@ -21,7 +21,7 @@ public static class Config
         new Client[]
         {
             // For Postman
-            new Client
+/*             new Client
             {
                 // Two tokens - Id token and Access token
                 // This config is just for development - less secure
@@ -32,13 +32,13 @@ public static class Config
                 ClientSecrets = new[] { new Secret("NotASecret".Sha256()) },
                 AllowedGrantTypes = GrantTypes.ResourceOwnerPassword
             },
-
+ */
             // For the nextjs app
             new Client
             {
                 ClientId = "nextApp",
                 ClientName = "nextApp",
-                ClientSecrets = new[] { new Secret("NotASecret".Sha256()) },
+                ClientSecrets = new[] { new Secret(config["ClientSecret"].Sha256()) },
                 AllowedGrantTypes = GrantTypes.CodeAndClientCredentials,
                 RequirePkce = false ,// for mobile apps
                 RedirectUris = {config["ClientApp"] + "/api/auth/callback/id-server"},
